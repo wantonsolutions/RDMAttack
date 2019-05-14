@@ -1,0 +1,12 @@
+\section{Abstract}
+\label{sec:abstract}
+
+RDMA is growing in popularity and it's adoption is slowy growing beyond the
+secure world of the data center. As a high throughput protocol RDAM was never
+designed with security in mind and is open for attacks.
+
+In this work we review prior work on securing RDMA, \emph{Demonstrate that
+current proposed securty protocls such as TLS and RDMA specific security cannot
+scale to 100Gb networking}. Demonstrate that RDMA traffic can be hijacked using
+a trivial man in the middle attack, and propose high throughput security
+privatives for securing RDMA.
