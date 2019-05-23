@@ -1,3 +1,25 @@
 \section{Introduction}
 \label{sec:intro}
 
+Our attacker model is one in which an attacker has gained access to the victems
+vlan, and can observer and send traffic. Our goal is to both gain read and write access to a victem computer.
+
+We should note that Throwhammer~\cite{216055} must be run by an adversary, if
+the adversary has the ability to spoof requests, then we cannot defend against
+it, but if we assume that Throwhammer requests only come from malicious
+clients, then we can say that our defense protects against throwhammer as well.
+We should also state that our attaker model, if we are able to modifiy headers,
+could instantiate a throwhammer attack by modifing the memory addresses of the
+requests.
+
+We should also determine if an attacker can perform a denial of service by
+modifing RDMA packets. The idea here is that the high speed nature of RDMA
+makes it more potene as a DOS tool.
+
+We should also state our potential goals. For example if all we want is
+authenticity we only need to negotiate keys for the RDMA session. However, if
+we want, confidentiality we may be hosed. -- After a conversaiton about
+confidentiality it apears that it is on a spectrum, and that the degree of
+confidentiality something has is based on the guessing abilities of an
+adversary.
+
