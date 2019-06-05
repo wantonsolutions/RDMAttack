@@ -24,9 +24,11 @@ int run(struct dccs_parameters params) {
         log_info("Running in server mode ...\n");
 
     if (role == ROLE_CLIENT) {
+        srand((unsigned int)time(NULL));
         if ((rv = dccs_connect(&id, params.server, params.port, params.tos)) != 0)
             goto end;
     } else {    // role == ROLE_SERVER
+        srand((unsigned int)time(NULL) + 100);
         if ((rv = dccs_listen(&listen_id, &id, params.port)) != 0)
             goto end;
     }
@@ -65,6 +67,8 @@ int run(struct dccs_parameters params) {
             }
         }
     }
+
+    print_sha1sum(requests, params.count);
 
     for (size_t n = 0; n < params.repeat; n++) {
         log_info("Round %zu.\n", n + 1);

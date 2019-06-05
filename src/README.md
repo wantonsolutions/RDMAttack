@@ -4,6 +4,5 @@ We have a simple three host setup, client and server are both connected to a mid
 
 The code base is organized as follows:
 - [application](application) contains the unmodified client/server RDMA application.
-- [relay](relay) contains the relay software and the instructions.
-- [attack](attack) contains attack code to watch and/or inject packets into the connection.
+- [relay](relay) contains the relay software and attacker code to watch and/or inject packets into the connection.
 

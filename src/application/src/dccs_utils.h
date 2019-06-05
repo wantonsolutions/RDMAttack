@@ -482,7 +482,6 @@ void *malloc_random(size_t size) {
     if (buf == NULL)
         return buf;
 
-    srand((unsigned int)time(NULL));
     int r = rand();
     for (size_t n = 0; n < size / sizeof(int); n++) {
         *((int *)buf + n) = r;

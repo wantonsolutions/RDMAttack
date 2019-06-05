@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-import os
-import sys
+import os, sys, binascii
 from bitarray import bitarray
+from scapy.all import *
+from hijack import hijack_packet
 
 VERBOSE = False
 
@@ -24,14 +25,16 @@ ERROR: This script requires root privileges.
 """
     quit()
 
-from scapy.all import *
-from bitarray import bitarray
-
 if len(sys.argv) < 2:
-    print >> sys.stderr, "Usage: %s iface" % sys.argv[0]
+    print >> sys.stderr, "Usage: %s iface [attack]" % sys.argv[0]
     quit()
 else:
     iface = sys.argv[1]
+
+ATTACK_MODE = False
+if len(sys.argv) >= 3 and sys.argv[2] == "attack":
+    print >> sys.stderr, "Attack mode enabled."
+    ATTACK_MODE = True
 
 def handle_pkt(pkt):
     if not(UDP in pkt and pkt[UDP].dport == 4791):
@@ -56,16 +59,19 @@ def handle_pkt(pkt):
         print >> sys.stderr, "Received packet with unrecognized MAC addresses"
         print >> sys.stderr, "Ether.src = %s, Ether.dst = %s" % (pkt[Ether].src, pkt[Ether].dst)
         return
-    src = pkt[IP].src
-    dst = pkt[IP].dst
-    payload = bitarray()
-    payload.frombytes(str(pkt[UDP].payload))
-    opcode = int(payload[0:8].to01(), 2)
     if VERBOSE:
+        src = pkt[IP].src
+        dst = pkt[IP].dst
+        payload = bitarray()
+        payload.frombytes(str(pkt[UDP].payload))
+        opcode = int(payload[0:8].to01(), 2)
         print "%s -> %s, opcode: %d, udp len = %d" % (src, dst, opcode, len(pkt[UDP].payload))
 #    print "======== start of packet ========"
 #    print pkt.show()
 #    print "======== end of packet ========"
+    if ATTACK_MODE:
+        pkt = hijack_packet(pkt)
+    print >> sys.stderr, "packet sent:", binascii.hexlify(raw(pkt))
     sendp(pkt, iface=out_iface, verbose=False)
 
 print "Sniffing on ", iface

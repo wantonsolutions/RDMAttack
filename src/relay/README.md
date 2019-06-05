@@ -17,7 +17,8 @@ We can optionally insert the attacker in this process, allowing the attacker to 
 - `setup.sh` is a shell script to set up the network configurations, including IPs, MTUs, promisc modes, etc.
     - Run this once before experiments to ensure correct configuration.
 - `forward_rocev2_packets.py` starts forwarding of RoCE v2 packets on the provided interface.
-    - Run it like `sudo python forward_rocev2_packets.py <iface>` for both interfaces.
+    - Run it like `sudo python forward_rocev2_packets.py <iface> <1|0>` for both interfaces, where the last argument toggles attack mode.
+    - In attack mode, all (RC) RDMA writes will go to the same address as a proof of concept.
     - Toggle the `VERBOSE` flag in the script as needed.
 - Once both relays are running, you can run any RoCE applications between the client and server as normal.
     - For example, you can use `rdma_client/rdma_server` or `udaddy` to test connectivity.
