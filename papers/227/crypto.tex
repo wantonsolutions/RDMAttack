@@ -1,18 +1,15 @@
 \section{Encryption at Line Rate: How Fast do we need?}
+\label{sec:crypto}
 
 The attack demonstrated in Sec.~\ref{sec:poc.attack} suggests the necessity of encryption for RDMA traffic.
 However, applications using RDMA aim for high speed network links running at typically 40 to 100 Gbps.
-The RDMA traffic among machines is transferred in raw bytes nowadays without any encryption nowadays.
+The RDMA traffic among machines is transferred in raw bytes without any encryption nowadays.
 This is an obvious but unconsidered tradeoff between performance and security guarantees.
 There are, as we believe, more balanced solutions in the design space of a secure and performant RDMA system.
 In this section, we are going to discuss the encryption rate we need to support high-speed RDMA traffic
 as the first step toward it.
 
-The encryption of either RoCE and iWARP RDMA can operate on different levels of the protocol stacks, e.g. IPsec or tcpcrypt. However, a TLS-like implementation for RDMA encrypted traffic is generally better per end-to-end principle.
-The inclusion of encryption should only be on end hosts to prevent laborious change to intermediate switches and routers.
-DTLS is the counterpart of TLS over UDP, and it works very similarly, thus we only discuss a TLS-like implementation for TCP in the following paragraphs. A TLS implementation over TCP has two protocols: Handshake Protocols and Record Protocol. Only Record Protocol is required in datacenters because the handshake protocols can be pre-assigned and updated in a fixed time period for a group of known hosts. In a RoCE v2 packet, there are one 4-byte CRC checksum for Ethernet FCS (Frame Check Sequence) and another 4-byye ICRC for RoCE v2 beyond Ethernet. Using a 4-byte MAC is not enough for any secure MAC algorithm for today's standard. Therefore, we argue that the MAC for TLS-enabled RDMA traffic should be implemented in the payload of InfiniBand.
-
-An ideal TLS-like implementation for RDMA encrypted traffic should be able to operate at line-rate of the underlying network. As the link rate of network soars over the last few years, we can easily purchase 200 Gbps off-the-shelf network interface cards supporting RDMA. However, the encryption rate grows slower than this though having instruction-level support on CPU, e.g. AES-NI on Intel x86 processors. We conducted a brief evaluation of encryption rate using common encryption algorithms and commodity CPUs. We chose to evaluate on block cipher, e.g. AES-CBC and AES-GCM and stream cipher, e.g. ChaCha20 with Poly1305. The evaluation executed on different block size ranging from 16 bytes to 8192 bytes. We ran encryption algorithms of OpenSSL 1.1.0 on a Intel Xeon E5-2650 v4 processor. It is single-threaded and with AES-NI enabled.
+An ideal implementation for RDMA encrypted traffic should be very similar to TLS that implemented on top of the transport protocols. It should be able to operate at line-rate of the underlying network. As the link rate of network soars over the last few years, we can easily purchase 200 Gbps off-the-shelf network interface cards supporting RDMA. However, the encryption rate grows slower than this though having instruction-level support on CPU, e.g. AES-NI on Intel x86 processors. We conducted a brief evaluation of encryption rate using common encryption algorithms and commodity CPUs. We chose to evaluate on block cipher, e.g. AES-CBC and AES-GCM and stream cipher, e.g. ChaCha20 with Poly1305. The evaluation executed on different block size ranging from 16 bytes to 8192 bytes. We ran encryption algorithms of OpenSSL 1.1.0 on a Intel Xeon E5-2650 v4 processor. It is single-threaded and with AES-NI enabled.
 
 As Fig.~\ref{fig:cpu_encryption_rate} shown, the fastest AES-128-GCM encrypts 8k blocks around 26 Gbps which is way slower than the expected link rate of high speed network. Another downside of performing encryption on CPU is the waste of compute resources. CPUs are suppose to perform real computation instead of encryption. If we want to encrypt our data for RDMA traffic in 200 Gbps, then we need 8 physical cores dedicated for encryption. A server in datacenters usually has around 20 cores, and spending 8 cores dedicated for encryption is wasting 40\% of the compute power.
 
