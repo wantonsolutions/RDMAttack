@@ -75,11 +75,11 @@ transferred successfully and not been tampered with.
     \label{table:attack.result}
 \end{table*}
 
-As show in \autoref{table:attack.result}, in the first case, there is only one RDMA WRITE, so the attacker doesn't
-modify the requests at all, thus the SHA1 digests match. But in the second case, since there are two RDMA writes, the
-second RDMA WRITE is hijacked so the buffer for the second WRITE wasn't wrote successfully. Thus the SHA1 digests
-don't match. This simple proof-of-concept shows that it is (very) possible for attackers who compromised a switch to
-carry out RDMA attacks like Throwhammer and more.
-
 \subsection{Result}
 \label{sec:attack.result}
+
+As show in \autoref{table:attack.result}, in the first case, there is only one RDMA WRITE, so the attacker doesn't
+modify the requests at all, thus the SHA1 digests match. But in the second case, since there are two RDMA writes, the
+second RDMA WRITE is hijacked so the buffer for the second WRITE did not complete successfully. Thus the SHA1 digests
+don't match. This simple proof-of-concept shows that it is (very) possible for attackers who compromised a switch to
+carry out RDMA attacks like Throwhammer and more.
