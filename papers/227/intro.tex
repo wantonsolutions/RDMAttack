@@ -20,3 +20,14 @@ This motivates many potential defense mechanisms, two of which are encrypting an
 We show in \autoref{sec:encrypt} that modern datacenter server CPUs need at least several cores solely
 for encrypting/hashing traffic at line rate, which is around $40 - 100$ Gbps for modern NICs.
 Our result shows that NIC offloading or accelerator is the preferred way to achieve such RDMA security goals at line rate.
+
+
+\todo{After migrating the original intro back make sure to talk about denial of service attacks as a potential extension of RDMA attacks. Denial of service happens in a few forms}
+
+\todo{1 Read amplification an attacker who knows the key of a memory region can flood the network by injecting a large number of read requests causing the node responsible for the data to attack the network blindly.}
+
+
+\todo {2 an opaque attack can also be made by adjusting the offset of the read, a fast attack which only requires the update of the checksum and the read size.}
+
+
+
