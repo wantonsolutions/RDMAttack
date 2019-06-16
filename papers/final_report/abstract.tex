@@ -1,0 +1,24 @@
+\section{Abstract}
+\label{sec:abstract}
+
+RDMA over converged ethernet (RoCEv2) is a high performance network protocol
+for directly accessing the memory of a remote machine by bypassing its CPU.
+The protocol's design prioritizes performance above all else, leaving security
+properties such as authenticity and confidentiality by the wayside. Security is
+largely unnecessary in the intimately coupled compute clusters RoCEv2 was
+designed for. RDMA's performance benifits have been widely recognized, and it
+has been integrated into a wide set of dataceter applications. Many of these
+general purpose applications run on diverse sets of machines (sometimes across
+data centers) which has propelled RDMA into high risk environments it was never
+designed for.
+
+In this work we consider the design of secure RDMA. As motivation for the redesign,
+we hijack RDMA by performing a trivial man in the middle attack. We show that
+an unsophisticated attacker in control of a switch's routing table can gain
+full control over plaintext RDMA payloads, reading and writing to arbitrary victim addresses.
+Securing RDMA requires careful consideration of its performance; practitioners
+will not adopt a solution which degrades their high performance applications.
+We benchmark common encryption algorithms and demonstrate that commodity CPU's
+cannot encrypt at the beefy bandwidth's (100 and 400Gbps) RDMA is designed for.
+Our conclusion is that RDMA encryption must be implemented as a NIC offloaded
+function to achieve line rate performance.

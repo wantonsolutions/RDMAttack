@@ -1,0 +1,48 @@
+\section{Introduction}
+\label{sec:intro}
+
+In ultra high performance distributed applications servicing requests for data
+with a CPU is a faux pas. The latency incurred by having a CPU
+service a network interrupt, copy memory to a buffer then to the Network
+Interface Card (NIC), and trigger a send is considered unseemly. To save face
+protocols for bypassing the CPU which allow Remote Direct Memory Access (RDMA)
+by NIC's are supported by most well-to-do operating systems. RDMA over
+converged ethernet is an en vogue instantiation of RDMA among elite data centre
+practitioners. In the high performance upper crust of data centre clusters
+security is an after thought as their traffic is largely partitioned from
+riff-raff applications run by potentially malicious individuals. As such RoCEv2
+was designed as a separate class of protocol with minimal security considerations.
+
+RoCE packets are bare unencrypted bytes, easily voyeurable by an attacker. The
+scant protection provided by the protocol comes as a checksum (iCRC) and 16 bit
+partition identification key used by the IOMMU to reject accesses to memory
+addresses not registered for RDMA. These minimal mechanisms for integrity and
+protection leave RoCE exposed to attackers. A man in the the middle can peek
+into every read revealing potentially sensitive program state, or simply modify
+the packet entirely reading or writing to arbitrary positions in a victims
+address space.
+
+Securing RoCE, due to its performance aims, requires care. Network line rate
+rages towards terrabits per seconds, and RDMA is expected to scale in order to
+saturate links. Any encryption used to secure the protocol must operate at a
+competitive rate or risk becoming a latency bottleneck. Additionally part's of
+RoCE protocol are offloaded to the NIC itself, meaning that any encryption
+performed by the CPU must be carefully coordinated between the two
+asynchronous hardware devices.
+
+In this work we Attack RDMA; first we show how a trivial man in the middle
+attack can be performed on the protocol by any attacker able to own a switch
+between two RDMA enabled hosts. We demonstrate the power of the attack by
+demonstrating full control over the protocol by an attacker: the ability to
+observer all traffic, modify payloads allowing reads and writes to arbitrary
+locations within an RDMA enabled region. We also demonstrate that an attacker
+can steer RDMA traffic to perform throwhammer attacks. Post attack we discuss
+the design space of a solution for secure RDMA, we contrast the bandwidths
+attainable by a variety of CPU encryption algorithms and NIC offloaded
+encryption. Our finding lead us to believe that any standard secure RDMA
+algorithm must be implemented as an offloaded function to the NIC itself, in
+order not to interfere with 400, and potential terabit network bandwidths. 
+
+In Section (Background) we supply background to the RDMA protocol
+
+
