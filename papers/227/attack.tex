@@ -1,12 +1,15 @@
 \section{Proof-of-Concept Attack}
 \label{sec:poc.attack}
 
-\subsection{Testbed Setup}
+\subsection{Test bed Setup}
 \label{sec:attack.setup}
 
-As a simple proof of concept, we wanted to perform a man-in-the-middle attack.
-Since we don't have access to specialized router that supports packet eavesdropping
-and manipulation, we used \texttt{scapy} to emulate router on a regular Ubuntu server.
+As proof of concept, and illustrative strawman for the weakness of RDMA we
+perform a man-in-the-middle attack. We demonstrate the power that an attacker
+with the ability to read and modify packets in the network can wield. For
+simplicity, and due to our lack of access to s specialized router that supports
+packet eavesdropping and manipulation, we used \texttt{scapy} to emulate router
+on a regular Ubuntu server.
 
 \begin{figure}[ht]
     \centering
@@ -15,26 +18,39 @@ and manipulation, we used \texttt{scapy} to emulate router on a regular Ubuntu s
     \label{fig:attack.setup}
 \end{figure}
 
-As show in \autoref{fig:attack.setup}, we run regular RDMA client and server
-on two Ubuntu servers. Both machines are connected to the machine in the middle,
-which uses \texttt{scapy} to sniff all \texttt{RoCEv2} packets, re-write the MAC
-addresses and forward it to the other port. In the case of attackers present, we
-allow the attacker to modify the packet as needed, after which we'll re-compute
-the \texttt{RoCEv2} checksum according to the IBTA specs \cite{infiniband:iba.spec.vol1.v1.3},
-RoCE annex \cite{infiniband:iba.spec.annex.roce} and RoCEv2 annex \cite{infiniband:iba.spec.annex.rocev2}.
+We run a RoCEv2 RDMA client and server on two Ubuntu servers as seen in
+Figure~\autoref{fig:attack.setup}. Both client and server are connected to an
+attacker machine in the middle which uses \texttt{scapy} to sniff all
+\texttt{RoCEv2} packets, re-write the MAC addresses and forward it to an egress
+port. During attacks we allow the attacker to modify the packet as needed, after
+which we re-compute the \texttt{RoCEv2} checksum according to the IBTA specs
+\cite{infiniband:iba.spec.vol1.v1.3}, RoCE annex
+\cite{infiniband:iba.spec.annex.roce} and RoCEv2 annex
+\cite{infiniband:iba.spec.annex.rocev2}.
 
-We set up the \texttt{arp} entries manually such that both client and server think
-they are talking to the each other directly, but in reality, the packets will all
-go through the middle machine.
+We set up the \texttt{ARP} entries manually such that both client and server
+think they are talking to the each other directly, but in reality, the packets
+will all go through the middle machine. This configuration simulates a
+compromised switch in which an attacker has gained control over the data plane
+and can advertise arbitrary MAC address to connected hosts.
 
-\texttt{scapy} is a \texttt{Python} module that allows packet sniffing, manipulation, injection, etc.
-It internally calls \texttt{tcpdump} and works on raw socket as well, which gives us the ability to
-re-write Ethernet-layer MAC addresses.
+\texttt{scapy} is a \texttt{Python} module that allows packet sniffing,
+manipulation, injection, etc.  It internally calls \texttt{tcpdump} and works on
+raw socket as well, which gives us the ability to re-write Ethernet-layer MAC
+addresses.
 
-\subsection{Attack Model}
+\subsection{The RDMAttack }
 \label{sec:attack.model}
 
-For the proof-of-concept attack, we choose to hijack the write address of RDMA write requests.
+For our proof-of-concept attack, we choose to hijack the write address of RDMA
+write requests. Gaining control over a write location allows an attacker to
+place arbitrary data in a victims address space. Additionally it allows an
+attacker to seer RDMA traffic to select locations which can be used for
+Throwhammer exploits. We chose write as it gives the attacker explicitly more
+control over the victim. RDMA verbs for write are identical to reads, for the
+sake of brevity we could have modified read address and read sizes. This attack
+while omitted could be used to cause a victim to flood the network with
+Terabytes of unrequested data.
 
 \begin{figure}[h]
     \centering
@@ -43,9 +59,10 @@ For the proof-of-concept attack, we choose to hijack the write address of RDMA w
     \label{fig:attack.rdma_write_packet}
 \end{figure}
 
-RDMA WRITE allows the requestor/client to write data to the address space of the target application
-on the target machine / server, using a remote key negotiated via prior authentication. However,
-neither the key nor the virtual address is encrypted, as show in \autoref{fig:attack.rdma_write_packet}.
+RDMA WRITE allows the requestor/client to write data to the address space of the
+target application on the target machine / server, using a remote key negotiated
+via prior authentication. Neither the key nor the virtual address is encrypted,
+as show in \autoref{fig:attack.rdma_write_packet}.
 
 We decided to hijack all writes to the same address, which can be handy to carry out Throwhammer attack
 as previously shown \cite{216055}.
