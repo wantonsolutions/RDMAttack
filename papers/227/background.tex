@@ -59,9 +59,7 @@ among high performance application designers.
 \subsection{RDMA Security}
 
 RDMA protocol was originally designed to operate on High Performance
-Computing (HPC) clusters.  
-
-Such clusters are typically bespoke for a particular applications such as
+Computing (HPC) clusters. Such clusters are typically bespoke for a particular applications such as
 large-scale physical simulations, and are isolated from other networks inside a
 separated and trusted facility which have low security requirements.
 
@@ -98,7 +96,6 @@ Using a 4-byte MAC is not enough for any secure MAC algorithm for today's
 standard. For these reasons we argue that the MAC for TLS-enabled RDMA traffic
 should be implemented in the payload of InfiniBand.
 
-For RDMA, in a previous work, Security Enhancement in InfiniBand
-Architecture~\cite{Lee:2005:SEI:1053727.1054449}, the paper achieves
-authenticity by embedding an authentication tag in the header of an IBA packet.
-\textcolor{red}{TBA}
+There were few work discussing RDMA security. A paper called Security Enhancement in InfiniBand
+Architecture~\cite{Lee:2005:SEI:1053727.1054449} discussed the security aspect of an earlier version RDMA.  
+They implemented authenticity by embedding an authentication tag in the header of an IBA packet.
