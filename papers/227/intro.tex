@@ -43,11 +43,3 @@ attainable by a variety of CPU encryption algorithms and NIC offloaded
 encryption. Our finding lead us to believe that any standard secure RDMA
 algorithm must be implemented as an offloaded function to the NIC itself, in
 order not to interfere with 400, and potential terabit network bandwidths. 
-
-In Section (Background) we supply background to the RDMA protocol
-
-\todo{After migrating the original intro back make sure to talk about denial of service attacks as a potential extension of RDMA attacks. Denial of service happens in a few forms}
-
-\todo{1 Read amplification an attacker who knows the key of a memory region can flood the network by injecting a large number of read requests causing the node responsible for the data to attack the network blindly.}
-
-\todo {2 an opaque attack can also be made by adjusting the offset of the read, a fast attack which only requires the update of the checksum and the read size.}
