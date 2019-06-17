@@ -1,33 +1,53 @@
+
 \section{Introduction}
 \label{sec:intro}
 
-RDMA (Remote Direct Memory Access) is a high performance network protocol that offers microseconds latency and hundreds of gigabits throughput,
-which can significantly benefit high performance computing as well as data intensive workload. RDMA was initially designed to run over InfiniBand network,
-and was mostly used in HPC clusters. Its high performance characteristics comparing with traditional TCP/IP stack lead to the standardization of RoCE,
-RDMA over Converged Ethernet, and significantly improved the performance of modern datacenter applications like \texttt{memcached}, \texttt{Spark} and \texttt{Tensorflow}.
+In ultra high performance distributed applications servicing requests for data
+with a CPU is a faux pas. The latency incurred by having a CPU
+service a network interrupt, copy memory to a buffer then to the Network
+Interface Card (NIC), and trigger a send is considered unseemly. To save face
+protocols for bypassing the CPU which allow Remote Direct Memory Access (RDMA)
+by NIC's are supported by most well-to-do operating systems. RDMA over
+converged ethernet is an en vogue instantiation of RDMA among elite data centre
+practitioners. In the high performance upper crust of data centre clusters
+security is an after thought as their traffic is largely partitioned from
+riff-raff applications run by potentially malicious individuals. As such RoCEv2
+was designed as a separate class of protocol with minimal security considerations.
 
-Originally designed for HPC environment, RDMA has very little built-in security features. Other than a 32-bit remote key for RDMA read/write requests,
-there is no security feature other than standard CRC for detecting link-level bit errors. Previous work like ThrowHammer~\cite{216055} has shown that
-it's possible to launch local-only memory attack over RDMA, due to its high message rate capability. In addition, an attacker can also perform a
-denial-of-service attack by injecting RDMA request at high speed, or by sending large amount of read requests, which are small themselves, but
-generates large amount of data to be sent in responses.
+RoCE packets are bare unencrypted bytes, easily voyeurable by an attacker. The
+scant protection provided by the protocol comes as a checksum (iCRC) and 16 bit
+partition identification key used by the IOMMU to reject accesses to memory
+addresses not registered for RDMA. These minimal mechanisms for integrity and
+protection leave RoCE exposed to attackers. A man in the the middle can peek
+into every read revealing potentially sensitive program state, or simply modify
+the packet entirely reading or writing to arbitrary positions in a victims
+address space.
 
-In this paper, we will show that it is possible for an attacker to launch a man-in-the-middle attack. Realisticly, this means that in a datacenter,
-a malicious user compromised a switch and thus is able to view and modify traffic going through the switch. We show that without proper protection,
-normal application traffic can be hijacked. We describe the proof-of-concept attack and show its feasibility in \autoref{sec:poc.attack}.
+Securing RoCE, due to its performance aims, requires care. Network line rate
+rages towards terrabits per seconds, and RDMA is expected to scale in order to
+saturate links. Any encryption used to secure the protocol must operate at a
+competitive rate or risk becoming a latency bottleneck. Additionally part's of
+RoCE protocol are offloaded to the NIC itself, meaning that any encryption
+performed by the CPU must be carefully coordinated between the two
+asynchronous hardware devices.
 
-This motivates many potential defense mechanisms, two of which are encrypting and authenticating the traffic end-to-end.
-We show in \autoref{sec:encrypt} that modern datacenter server CPUs need at least several cores solely
-for encrypting/hashing traffic at line rate, which is around $40 - 100$ Gbps for modern NICs.
-Our result shows that NIC offloading or accelerator is the preferred way to achieve such RDMA security goals at line rate.
+In this work we Attack RDMA; first we show how a trivial man in the middle
+attack can be performed on the protocol by any attacker able to own a switch
+between two RDMA enabled hosts. We demonstrate the power of the attack by
+demonstrating full control over the protocol by an attacker: the ability to
+observer all traffic, modify payloads allowing reads and writes to arbitrary
+locations within an RDMA enabled region. We also demonstrate that an attacker
+can steer RDMA traffic to perform throwhammer attacks. Post attack we discuss
+the design space of a solution for secure RDMA, we contrast the bandwidths
+attainable by a variety of CPU encryption algorithms and NIC offloaded
+encryption. Our finding lead us to believe that any standard secure RDMA
+algorithm must be implemented as an offloaded function to the NIC itself, in
+order not to interfere with 400, and potential terabit network bandwidths. 
 
+In Section (Background) we supply background to the RDMA protocol
 
 \todo{After migrating the original intro back make sure to talk about denial of service attacks as a potential extension of RDMA attacks. Denial of service happens in a few forms}
 
 \todo{1 Read amplification an attacker who knows the key of a memory region can flood the network by injecting a large number of read requests causing the node responsible for the data to attack the network blindly.}
 
-
 \todo {2 an opaque attack can also be made by adjusting the offset of the read, a fast attack which only requires the update of the checksum and the read size.}
-
-
-
